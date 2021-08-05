@@ -1,0 +1,150 @@
+"""
+1. Написать функцию num_translate(), переводящую числительные от 0 до 10 c английского на русский язык. Например:
+>>> >>> num_translate("one")
+"один"
+>>> num_translate("eight")
+"восемь"
+Если перевод сделать невозможно, вернуть None. Подумайте, как и где лучше хранить информацию, необходимую для перевода: какой тип данных выбрать, в теле функции или снаружи.
+2. * (вместо задачи 1) Доработать предыдущую функцию num_translate_adv(): реализовать корректную работу с числительными, начинающимися с заглавной буквы. Например:
+>>> >>> num_translate_adv("One")
+"Один"
+>>> num_translate_adv("two")
+"два"
+"""
+
+num_alpha = {
+    'zero': 'ноль',
+    'one': 'один',
+    'two': 'два',
+    'three': 'три',
+    'four': 'четыре',
+    'five': 'пять',
+    'six': 'шесть',
+    'seven': 'семь',
+    'eight': 'восемь',
+    'nine': 'девять',
+    'ten': 'десять'
+}
+
+
+def num_translate(num_en):
+    return num_alpha.get(num_en)
+def num_translate_adv(num_en):
+   upper_idx = tuple(map(str.isupper, num_en))
+
+   return ''.join(map(lambda tpl: tpl[1].upper() if (upper_idx[tpl[0]] if tpl[0] < len(upper_idx) else False) else tpl[1], enumerate(num_alpha.get(num_en.lower()))))
+
+
+number = 'thrEe'
+print(f'{number} - {num_translate(number)}')
+number = 'four'
+print(f'{number} - {num_translate(number)}')
+
+print('-----')
+
+number = 'foUr'
+print(f'{number} - {num_translate_adv(number)}')
+number = 'Five'
+print(f'{number} - {num_translate_adv(number)}')
+
+"""
+3.  Написать функцию thesaurus(), принимающую в качестве аргументов имена сотрудников и возвращающую словарь, в котором ключи — первые буквы имен, а значения — списки, содержащие имена, начинающиеся с соответствующей буквы. Например:
+     thesaurus("Иван", "Мария", "Петр", "Илья")
+    {
+        "И": ["Иван", "Илья"],
+        "М": ["Мария"], "П": ["Петр"]
+    }
+    Подумайте: полезен ли будет вам оператор распаковки? Сможете ли вы вернуть отсортированный по ключам словарь?
+4.  *(вместо задачи 3) Написать функцию thesaurus_adv(), принимающую в качестве аргументов строки в формате «Имя Фамилия» и возвращающую словарь, в котором ключи — первые буквы фамилий, а значения — словари, реализованные по схеме предыдущего задания и содержащие записи, в которых фамилия начинается с соответствующей буквы. Например:
+     thesaurus_adv("Иван Сергеев", "Инна Серова", "Петр Алексеев", "Илья Иванов", "Анна Савельева")
+    {
+        "А": {
+            "П": ["Петр Алексеев"]
+        },
+        "С": {
+            "И": ["Иван Сергеев", "Инна Серова"],
+            "А": ["Анна Савельева"]
+        }
+    }
+    Сможете ли вы вернуть отсортированный по ключам словарь?
+"""
+
+
+def thesaurus(*args):
+    rslt = {}
+    for elem in args:
+        first_alpha = elem[:1]
+        if first_alpha in rslt:
+            rslt[first_alpha].append(elem)
+        else:
+            rslt[first_alpha] = [elem]
+    return rslt
+
+
+def thesaurus_adv(*args):
+    rslt = {}
+    for elem in args:
+        name, surname = elem.split()
+        name_first_alpha = name[:1]
+        surname_first_alpha = surname[:1]
+        if surname_first_alpha in rslt:
+            if name_first_alpha in rslt[surname_first_alpha]:
+                rslt[surname_first_alpha][name_first_alpha].append(elem)
+            else:
+                rslt[surname_first_alpha][name_first_alpha] = [elem]
+        else:
+            rslt[surname_first_alpha] = {name_first_alpha: [elem]}
+    return rslt
+
+
+thsrs = thesaurus("Мария", "Петр", "Илья", "Иван")
+print(*thsrs.items())  
+
+thsrs = dict(sorted(thsrs.items()))
+print(*thsrs.items())
+
+print('---')
+thsrs = thesaurus_adv("Иван Сергеев", "Инна Серова", "Петр Алексеев", "Илья Иванов", "Анна Савельева")
+print(*thsrs.items())
+
+for k in thsrs:
+    thsrs[k] = dict(sorted(thsrs[k].items()))
+thsrs = dict(sorted(thsrs.items()))
+# thsrs = dict(tuple(map(lambda x: (x[0], dict(sorted(x[1].items()))), sorted(thsrs.items()))))
+print(*thsrs.items())
+
+"""
+5. Реализовать функцию get_jokes(), возвращающую n шуток, сформированных из двух случайных слов, взятых из трёх списков:
+nouns = ["автомобиль", "лес", "огонь", "город", "дом"]
+adverbs = ["сегодня", "вчера", "завтра", "позавчера", "ночью"]
+adjectives = ["веселый", "яркий", "зеленый", "утопичный", "мягкий"]
+        Например:
+>>> get_jokes(2)
+["лес завтра зеленый", "город вчера веселый"]
+Документировать код функции.
+Сможете ли вы добавить еще один аргумент — флаг, разрешающий или запрещающий повторы слов в шутках (когда каждое слово можно использовать только в одной шутке)? Сможете ли вы сделать аргументы именованными?
+"""
+
+from random import choice
+
+def get_jokes(count=5, unique=False):
+    nouns = ["автомобиль", "лес", "огонь", "город", "дом"]
+    adverbs = ["сегодня", "вчера", "завтра", "позавчера", "ночью"]
+    adjectives = ["веселый", "яркий", "зеленый", "утопичный", "мягкий"]
+    rslt = []
+
+    if unique and count > len(nouns):
+        return 'Столько шуток не получится =( ' \
+               f'\nНадо задать не больше {len(nouns)}'
+
+    for _ in range(count):
+        noun, adv, adj = choice(nouns), choice(adverbs), choice(adjectives)
+        if unique:
+            nouns.remove(noun)
+            adverbs.remove(adv)
+            adjectives.remove(adj)
+        rslt.append(' '.join((noun, adv, adj)))
+    return rslt
+
+
+print(get_jokes(5, unique=True))
